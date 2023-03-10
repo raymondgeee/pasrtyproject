@@ -1,1 +1,0 @@
-<title>Pastry Project</title>

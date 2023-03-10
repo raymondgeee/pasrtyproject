@@ -1,1 +1,0 @@
-<link href="Custom/Logos/logo.png" rel="icon" type="image">
