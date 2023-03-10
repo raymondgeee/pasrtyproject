@@ -30,12 +30,18 @@ $activeButtonCont = "";
             <div class="col-md-9">
                 <div class="w3-padding-top"></div>
                 <div class="w3-card-2">
+                    <?php
+                    $sql = "SELECT * FROM productorders WHERE orderStatus > 0 AND userId = ".$userId. " GROUP BY batchNumber ORDER BY orderStatus ASC";
+                    $sqlData = $sql;
+                    $queryBatch = $db->query($sql);
+                    $disabledImportBtn = ($queryBatch->num_rows > 0) ? "" : "disabled";
+                    ?>
                     <div class="w3-container w3-padding w3-white" style="height: 608px">
                         <form id="formExportXLS" method="POST" action="summaryOrderExportExcel.php?type=summary"></form>
                         <form id="formExportPDF" method="POST" action="summaryOrderExportPDF.php?type=summary" target="_blank"></form>
                         <div class='w3-right'>
-                            <button form="formExportXLS" class='w3-btn w3-tiny w3-round w3-black'><i class="fa fa-file-excel-o"></i>&emsp;<b>IMPORT VIA XLS</b></button>
-                            <button form="formExportPDF" class='w3-btn w3-tiny w3-round w3-black'><i class="fa fa-file-pdf-o"></i>&emsp;<b>IMPORT VIA PDF</b></button>
+                            <button <?php echo $disabledImportBtn; ?> form="formExportXLS" class='w3-btn w3-tiny w3-round w3-black'><i class="fa fa-file-excel-o"></i>&emsp;<b>IMPORT VIA XLS</b></button>
+                            <button <?php echo $disabledImportBtn; ?> form="formExportPDF" class='w3-btn w3-tiny w3-round w3-black'><i class="fa fa-file-pdf-o"></i>&emsp;<b>IMPORT VIA PDF</b></button>
                         </div>
                         <div class="w3-padding-top"></div>
                         <div class="w3-padding-top"></div>
