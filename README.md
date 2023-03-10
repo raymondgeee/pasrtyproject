@@ -21,10 +21,10 @@
   SweetAlert2
   
 # Installing the Project to Your Local Machine
-1. Clone the main branch from git repo to your local machine.\
-2. Import database from folder Database/orderingdatabase.sql\
-3. Run WAMP/XAMP server or in your git bash\
-4. Git Bash Command : Go to the your local folder the in bash type php -S 127.0.0.1:8001\
+1. Clone the main branch from git repo to your local machine.
+2. Import database from folder Database/orderingdatabase.sql
+3. Run WAMP/XAMP server or in your git bash
+4. Git Bash Command : Go to the your local folder the in bash type php -S 127.0.0.1:8001
 5. Open the project to your browser type : http://127.0.0.1:8001/ or http://localhost:8001/
 
 # Git Repository
