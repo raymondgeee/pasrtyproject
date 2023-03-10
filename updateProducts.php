@@ -117,7 +117,7 @@ if($queryProduct AND $queryProduct->num_rows > 0)
                 </select>
                 
                 <div class='w3-padding-top'></div>
-                <label class=""><b>PRODUCT PHOTO (OPTIONAL)</b></label>
+                <label class=""><b>PRODUCT PHOTO (OPTIONAL) <i class='text-xs'><?php  echo $productImage; ?></i></b></label>
                 <input form='updateProductForm' class="w3-input w3-border" name='productImage' type="file">
 
                 <div class='w3-padding-top'></div>

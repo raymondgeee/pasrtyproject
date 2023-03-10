@@ -113,17 +113,20 @@ if($queryReviewOrders AND $queryReviewOrders->num_rows > 0)
 }
 
 $customersName = '';
-$sql = "SELECT * FROM userinformation WHERE userId = ".$userIdData;
-$queryUserInfo = $db->query($sql);
-if($queryUserInfo AND $queryUserInfo->num_rows > 0)
+if ($userIdData != "") 
 {
-    $resultUserInfo = $queryUserInfo->fetch_assoc();
-    $firstName = $resultUserInfo['firstName'];
-    $surName = $resultUserInfo['surName'];
-    $address = $resultUserInfo['address'];
-    $contactNumber = $resultUserInfo['contactNumber'];
+    $sql = "SELECT * FROM userinformation WHERE userId = ".$userIdData;
+    $queryUserInfo = $db->query($sql);
+    if($queryUserInfo AND $queryUserInfo->num_rows > 0)
+    {
+        $resultUserInfo = $queryUserInfo->fetch_assoc();
+        $firstName = $resultUserInfo['firstName'];
+        $surName = $resultUserInfo['surName'];
+        $address = $resultUserInfo['address'];
+        $contactNumber = $resultUserInfo['contactNumber'];
 
-    $customersName = $firstName." ".$surName;
+        $customersName = $firstName." ".$surName;
+    }
 }
 
 $totalSummary = "0.00";
