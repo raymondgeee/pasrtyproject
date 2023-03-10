@@ -143,7 +143,7 @@ $activeButtonCont = "";
 	                	<div class="">
             				<button <?php echo $disabledBtn; ?> class="w3-btn w3-round w3-tiny w3-black" id="imageSaveBtn"><i class="fa fa-image"></i>&emsp;<b>SAVE AS IMAGE</b></button>
             				<a href="userCustomizedDashboard.php"><button class="w3-btn w3-round w3-tiny w3-black"><i class="fa fa-forward"></i>&emsp;<b>GO TO MY CUSTOM CAKES</b></button></a>
-            				<a target="_blank" href="CUSTOMIZATION MANUAL.pdf"><button class="w3-btn w3-round w3-tiny w3-purple"><i class="fa fa-file-pdf-o"></i>&emsp;<b>HOW TO USE?</b></button></a>
+            				<a target="_blank" href="Manuals/CUSTOMIZATION MANUAL.pdf"><button class="w3-btn w3-round w3-tiny w3-purple"><i class="fa fa-file-pdf-o"></i>&emsp;<b>HOW TO USE?</b></button></a>
     					</div>
 	                	<div class="row">
 	                		<div class='col-md-9 w3-padding'>
