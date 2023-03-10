@@ -1,0 +1,25 @@
+body{
+    background: url('../../Uploads/IMG_2934.JPG') no-repeat center center fixed;
+    -webkit-background-size: cover !important; 
+    -moz-background-size: cover !important; 
+    -o-background-size: cover !important; 
+    background-size: cover !important; 
+    font-family: Roboto Condensed;
+    font-size: 12px !important;
+    background-color: whitesmoke;
+}
+
+h1{   
+    font-family: Roboto Condensed !important;
+}
+
+.circle {
+    display: table-cell;
+    height: 120px;
+    width: 120px;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 50%;
+    /* background: #000; */
+    /* color: #fff; */
+}
