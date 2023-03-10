@@ -256,15 +256,15 @@ $activeButtonCont = "";
 
                             $nocahce = filemtime($imageData);
 
-                            echo "<div class='col-md-4 w3-padding-top hvr-float'>";
+                            echo "<div class='col-sm-12 col-xs-12 col-md-4 w3-padding-top hvr-float'>";
                                 echo "<div class='w3-card-8 w3-white'>";
                                     if($categoryId == 5)
                                     {
-                                        echo "<a href='usercustomize.php'><img src='".$imageData."?".$nocahce."' style='width:100%; height:250px;'></a>";
+                                        echo "<a href='usercustomize.php'><img class='img-responsive' src='".$imageData."?".$nocahce."' style='width:100%; height:250px;'></a>";
                                     }
                                     else
                                     {
-                                        echo "<a href='products.php?categoryId=".$categoryId."'><img src='".$imageData."?".$nocahce."' style='width:100%; height:250px;'></a>";
+                                        echo "<a href='products.php?categoryId=".$categoryId."'><img class='img-responsive' src='".$imageData."?".$nocahce."' style='width:100%; height:250px;'></a>";
                                     }
                                     // echo "<hr>";
                                     echo "<div class='w3-container w3-padding w3-black'>";
