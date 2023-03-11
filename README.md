@@ -16,7 +16,7 @@
   Bootstrap 3.3.7\
   Font Awesome 4.7.0\
   W3.CSS 2.71\
-  FPDF 1.6\
+  FPDF 1.85\
   iziModal | v1.5.1\
   SweetAlert2
   
