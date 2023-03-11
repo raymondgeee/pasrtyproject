@@ -37,9 +37,32 @@ else if($type == 2)
         $x++;                                    
     }
 }
-else if($type == 2)
+else if($type == 3)
 {
     $sql = "UPDATE productorders SET orderStatus = 6 WHERE batchNumber IN ('".implode("', '",$idArray)."')";
     $queryUpdate = $db->query($sql);
+
+    $x = 0;
+    foreach($idArray AS $key)
+    {
+        $sql = "INSERT INTO `usernotification`(
+                                                    `userId`, 
+                                                    `notificationDetails`, 
+                                                    `notificationKey`,
+                                                    `notificationRemarks`,
+                                                    `notificationType`,
+                                                    `notificationDate`
+                                                ) 
+                                            VALUES ( 
+                                                    ".$userIdArray[$x].",
+                                                    'You order has been cancelled.',
+                                                    '".$key."',
+                                                    'Please be remind that your down payment is not refundable.',
+                                                    '1',
+                                                    now()
+                                                )";
+        $queryInsert = $db->query($sql);
+        $x++;                                    
+    }
 }
 ?>

@@ -5,9 +5,10 @@
       {
         "modules": false
       }
-  ]
+    ]
   ],
   "plugins": [
+    "array-includes",
     "external-helpers",
     "transform-object-assign"
   ]

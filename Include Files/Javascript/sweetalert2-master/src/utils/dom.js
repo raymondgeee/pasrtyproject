@@ -1,21 +1,36 @@
-/* global MouseEvent */
-
 import { default as sweetAlert } from '../sweetalert2.js'
-import { swalPrefix, swalClasses, iconTypes } from './classes.js'
+import { swalClasses, iconTypes } from './classes.js'
+import { uniqueArray, error, warnOnce } from './utils.js'
 
 // Remember state in cases where opening and handling a modal will fiddle with it.
 export const states = {
-  previousWindowKeyDown: null,
   previousActiveElement: null,
   previousBodyPadding: null
 }
 
+// Detect Node env
+export const isNodeEnv = () => typeof window === 'undefined' || typeof document === 'undefined'
+
 /*
- * Add modal + overlay to DOM
+ * Add modal + backdrop to DOM
  */
 export const init = (params) => {
-  if (typeof document === 'undefined') {
-    console.error('SweetAlert2 requires document to initialize')
+  // Clean up the old popup if it exists
+  const c = getContainer()
+  if (c) {
+    c.parentNode.removeChild(c)
+    removeClass(
+      [document.documentElement, document.body],
+      [
+        swalClasses['no-backdrop'],
+        swalClasses['has-input'],
+        swalClasses['toast-shown']
+      ]
+    )
+  }
+
+  if (isNodeEnv()) {
+    error('SweetAlert2 requires document to initialize')
     return
   }
 
@@ -23,62 +38,43 @@ export const init = (params) => {
   container.className = swalClasses.container
   container.innerHTML = sweetHTML
 
-  let targetElement = document.querySelector(params.target)
-  if (!targetElement) {
-    console.warn(`SweetAlert2: Can't find the target "${params.target}"`)
-    targetElement = document.body
-  }
+  let targetElement = typeof params.target === 'string' ? document.querySelector(params.target) : params.target
   targetElement.appendChild(container)
 
-  const modal = getModal()
-  const input = getChildByClass(modal, swalClasses.input)
-  const file = getChildByClass(modal, swalClasses.file)
-  const range = modal.querySelector(`.${swalClasses.range} input`)
-  const rangeOutput = modal.querySelector(`.${swalClasses.range} output`)
-  const select = getChildByClass(modal, swalClasses.select)
-  const checkbox = modal.querySelector(`.${swalClasses.checkbox} input`)
-  const textarea = getChildByClass(modal, swalClasses.textarea)
+  const popup = getPopup()
+  const content = getContent()
+  const input = getChildByClass(content, swalClasses.input)
+  const file = getChildByClass(content, swalClasses.file)
+  const range = content.querySelector(`.${swalClasses.range} input`)
+  const rangeOutput = content.querySelector(`.${swalClasses.range} output`)
+  const select = getChildByClass(content, swalClasses.select)
+  const checkbox = content.querySelector(`.${swalClasses.checkbox} input`)
+  const textarea = getChildByClass(content, swalClasses.textarea)
 
-  input.oninput = () => {
-    sweetAlert.resetValidationError()
+  // a11y
+  popup.setAttribute('aria-live', params.toast ? 'polite' : 'assertive')
+
+  const resetValidationError = () => {
+    sweetAlert.isVisible() && sweetAlert.resetValidationError()
   }
 
-  input.onkeydown = (event) => {
-    setTimeout(() => {
-      if (event.keyCode === 13 && params.allowEnterKey) {
-        event.stopPropagation()
-        sweetAlert.clickConfirm()
-      }
-    }, 0)
-  }
-
-  file.onchange = () => {
-    sweetAlert.resetValidationError()
-  }
+  input.oninput = resetValidationError
+  file.onchange = resetValidationError
+  select.onchange = resetValidationError
+  checkbox.onchange = resetValidationError
+  textarea.oninput = resetValidationError
 
   range.oninput = () => {
-    sweetAlert.resetValidationError()
+    resetValidationError()
     rangeOutput.value = range.value
   }
 
   range.onchange = () => {
-    sweetAlert.resetValidationError()
+    resetValidationError()
     range.previousSibling.value = range.value
   }
 
-  select.onchange = () => {
-    sweetAlert.resetValidationError()
-  }
-
-  checkbox.onchange = () => {
-    sweetAlert.resetValidationError()
-  }
-
-  textarea.oninput = () => {
-    sweetAlert.resetValidationError()
-  }
-
-  return modal
+  return popup
 }
 
 /*
@@ -86,48 +82,57 @@ export const init = (params) => {
  */
 
 const sweetHTML = `
- <div  role="dialog" aria-labelledby="modalTitleId" aria-describedby="modalContentId" class="${swalClasses.modal}" tabIndex="-1" >
-   <ul class="${swalClasses.progresssteps}"></ul>
-   <div class="${swalClasses.icon} ${iconTypes.error}">
-     <span class="x-mark"><span class="line left"></span><span class="line right"></span></span>
+ <div role="dialog" aria-modal="true" aria-labelledby="${swalClasses.title}" aria-describedby="${swalClasses.content}" class="${swalClasses.popup}" tabindex="-1">
+   <div class="${swalClasses.header}">
+     <ul class="${swalClasses.progresssteps}"></ul>
+     <div class="${swalClasses.icon} ${iconTypes.error}">
+       <span class="swal2-x-mark"><span class="swal2-x-mark-line-left"></span><span class="swal2-x-mark-line-right"></span></span>
+     </div>
+     <div class="${swalClasses.icon} ${iconTypes.question}">?</div>
+     <div class="${swalClasses.icon} ${iconTypes.warning}">!</div>
+     <div class="${swalClasses.icon} ${iconTypes.info}">i</div>
+     <div class="${swalClasses.icon} ${iconTypes.success}">
+       <div class="swal2-success-circular-line-left"></div>
+       <span class="swal2-success-line-tip"></span> <span class="swal2-success-line-long"></span>
+       <div class="swal2-success-ring"></div> <div class="swal2-success-fix"></div>
+       <div class="swal2-success-circular-line-right"></div>
+     </div>
+     <img class="${swalClasses.image}" />
+     <h2 class="${swalClasses.title}" id="${swalClasses.title}"></h2>
+     <button type="button" class="${swalClasses.close}">×</button>
    </div>
-   <div class="${swalClasses.icon} ${iconTypes.question}">?</div>
-   <div class="${swalClasses.icon} ${iconTypes.warning}">!</div>
-   <div class="${swalClasses.icon} ${iconTypes.info}">i</div>
-   <div class="${swalClasses.icon} ${iconTypes.success}">
-     <span class="line tip"></span> <span class="line long"></span>
-     <div class="placeholder"></div> <div class="fix"></div>
+   <div class="${swalClasses.content}">
+     <div id="${swalClasses.content}"></div>
+     <input class="${swalClasses.input}" />
+     <input type="file" class="${swalClasses.file}" />
+     <div class="${swalClasses.range}">
+       <input type="range" />
+       <output></output>
+     </div>
+     <select class="${swalClasses.select}"></select>
+     <div class="${swalClasses.radio}"></div>
+     <label for="${swalClasses.checkbox}" class="${swalClasses.checkbox}">
+       <input type="checkbox" />
+     </label>
+     <textarea class="${swalClasses.textarea}"></textarea>
+     <div class="${swalClasses.validationerror}" id="${swalClasses.validationerror}"></div>
    </div>
-   <img class="${swalClasses.image}">
-   <h2 class="${swalClasses.title}" id="modalTitleId"></h2>
-   <div id="modalContentId" class="${swalClasses.content}"></div>
-   <input class="${swalClasses.input}">
-   <input type="file" class="${swalClasses.file}">
-   <div class="${swalClasses.range}">
-     <output></output>
-     <input type="range">
+   <div class="${swalClasses.actions}">
+     <button type="button" class="${swalClasses.confirm}">OK</button>
+     <button type="button" class="${swalClasses.cancel}">Cancel</button>
    </div>
-   <select class="${swalClasses.select}"></select>
-   <div class="${swalClasses.radio}"></div>
-   <label for="${swalClasses.checkbox}" class="${swalClasses.checkbox}">
-     <input type="checkbox">
-   </label>
-   <textarea class="${swalClasses.textarea}"></textarea>
-   <div class="${swalClasses.validationerror}"></div>
-   <hr class="${swalClasses.spacer}">
-   <button type="button" role="button" tabIndex="0" class="${swalClasses.confirm}">OK</button>
-   <button type="button" role="button" tabIndex="0" class="${swalClasses.cancel}">Cancel</button>
-   <span class="${swalClasses.close}">&times;</span>
+   <div class="${swalClasses.footer}">
+   </div>
  </div>
 `.replace(/(^|\n)\s*/g, '')
 
 export const getContainer = () => document.body.querySelector('.' + swalClasses.container)
 
-export const getModal = () => getContainer() ? getContainer().querySelector('.' + swalClasses.modal) : null
+export const getPopup = () => getContainer() ? getContainer().querySelector('.' + swalClasses.popup) : null
 
 export const getIcons = () => {
-  const modal = getModal()
-  return modal.querySelectorAll('.' + swalClasses.icon)
+  const popup = getPopup()
+  return popup.querySelectorAll('.' + swalClasses.icon)
 }
 
 export const elementByClass = (className) => getContainer() ? getContainer().querySelector('.' + className) : null
@@ -138,8 +143,6 @@ export const getContent = () => elementByClass(swalClasses.content)
 
 export const getImage = () => elementByClass(swalClasses.image)
 
-export const getSpacer = () => elementByClass(swalClasses.spacer)
-
 export const getProgressSteps = () => elementByClass(swalClasses.progresssteps)
 
 export const getValidationError = () => elementByClass(swalClasses.validationerror)
@@ -148,16 +151,70 @@ export const getConfirmButton = () => elementByClass(swalClasses.confirm)
 
 export const getCancelButton = () => elementByClass(swalClasses.cancel)
 
+export const getButtonsWrapper = () => {
+  warnOnce(`swal.getButtonsWrapper() is deprecated and will be removed in the next major release, use swal.getActions() instead`)
+  return elementByClass(swalClasses.actions)
+}
+
+export const getActions = () => elementByClass(swalClasses.actions)
+
+export const getFooter = () => elementByClass(swalClasses.footer)
+
 export const getCloseButton = () => elementByClass(swalClasses.close)
 
-export const getFocusableElements = (focusCancel) => {
-  const buttons = [getConfirmButton(), getCancelButton()]
-  if (focusCancel) {
-    buttons.reverse()
+export const getFocusableElements = () => {
+  const focusableElementsWithTabindex = Array.prototype.slice.call(
+    getPopup().querySelectorAll('[tabindex]:not([tabindex="-1"]):not([tabindex="0"])')
+  )
+  // sort according to tabindex
+  .sort((a, b) => {
+    a = parseInt(a.getAttribute('tabindex'))
+    b = parseInt(b.getAttribute('tabindex'))
+    if (a > b) {
+      return 1
+    } else if (a < b) {
+      return -1
+    }
+    return 0
+  })
+
+  const otherFocusableElements = Array.prototype.slice.call(
+    getPopup().querySelectorAll('button, input:not([type=hidden]), textarea, select, a, [tabindex="0"]')
+  )
+
+  return uniqueArray(focusableElementsWithTabindex.concat(otherFocusableElements))
+}
+
+export const parseHtmlToContainer = (param, target) => {
+  if (!param) {
+    return hide(target)
   }
-  return buttons.concat(Array.prototype.slice.call(
-    getModal().querySelectorAll('button:not([class^=' + swalPrefix + ']), input:not([type=hidden]), textarea, select')
-  ))
+
+  if (typeof param === 'object') {
+    target.innerHTML = ''
+    if (0 in param) {
+      for (let i = 0; i in param; i++) {
+        target.appendChild(param[i].cloneNode(true))
+      }
+    } else {
+      target.appendChild(param.cloneNode(true))
+    }
+  } else if (param) {
+    target.innerHTML = param
+  } else {}
+  show(target)
+}
+
+export const isModal = () => {
+  return !document.body.classList.contains(swalClasses['toast-shown'])
+}
+
+export const isToast = () => {
+  return document.body.classList.contains(swalClasses['toast-shown'])
+}
+
+export const isLoading = () => {
+  return getPopup().hasAttribute('data-loading')
 }
 
 export const hasClass = (elem, className) => {
@@ -179,24 +236,30 @@ export const focusInput = (input) => {
   }
 }
 
-export const addClass = (elem, className) => {
-  if (!elem || !className) {
+const addOrRemoveClass = (target, classList, add) => {
+  if (!target || !classList) {
     return
   }
-  const classes = className.split(/\s+/).filter(Boolean)
-  classes.forEach((className) => {
-    elem.classList.add(className)
+  if (typeof classList === 'string') {
+    classList = classList.split(/\s+/).filter(Boolean)
+  }
+  classList.forEach((className) => {
+    if (target.forEach) {
+      target.forEach((elem) => {
+        add ? elem.classList.add(className) : elem.classList.remove(className)
+      })
+    } else {
+      add ? target.classList.add(className) : target.classList.remove(className)
+    }
   })
 }
 
-export const removeClass = (elem, className) => {
-  if (!elem || !className) {
-    return
-  }
-  const classes = className.split(/\s+/).filter(Boolean)
-  classes.forEach((className) => {
-    elem.classList.remove(className)
-  })
+export const addClass = (target, classList) => {
+  addOrRemoveClass(target, classList, true)
+}
+
+export const removeClass = (target, classList) => {
+  addOrRemoveClass(target, classList, false)
 }
 
 export const getChildByClass = (elem, className) => {
@@ -209,7 +272,7 @@ export const getChildByClass = (elem, className) => {
 
 export const show = (elem, display) => {
   if (!display) {
-    display = 'block'
+    display = (elem.id === swalClasses.content) ? 'block' : 'flex'
   }
   elem.style.opacity = ''
   elem.style.display = display
@@ -226,8 +289,8 @@ export const empty = (elem) => {
   }
 }
 
-// borrowed from jqeury $(elem).is(':visible') implementation
-export const isVisible = (elem) => elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length
+// borrowed from jquery $(elem).is(':visible') implementation
+export const isVisible = (elem) => elem && (elem.offsetWidth || elem.offsetHeight || elem.getClientRects().length)
 
 export const removeStyleProperty = (elem, property) => {
   if (elem.style.removeProperty) {
@@ -237,44 +300,20 @@ export const removeStyleProperty = (elem, property) => {
   }
 }
 
-export const fireClick = (node) => {
-  if (!isVisible(node)) {
+export const animationEndEvent = (() => {
+  // Prevent run in Node env
+  if (isNodeEnv()) {
     return false
   }
 
-  // Taken from http://www.nonobtrusive.com/2011/11/29/programatically-fire-crossbrowser-click-event-with-javascript/
-  // Then fixed for today's Chrome browser.
-  if (typeof MouseEvent === 'function') {
-    // Up-to-date approach
-    const mevt = new MouseEvent('click', {
-      view: window,
-      bubbles: false,
-      cancelable: true
-    })
-    node.dispatchEvent(mevt)
-  } else if (document.createEvent) {
-    // Fallback
-    const evt = document.createEvent('MouseEvents')
-    evt.initEvent('click', false, false)
-    node.dispatchEvent(evt)
-  } else if (document.createEventObject) {
-    node.fireEvent('onclick')
-  } else if (typeof node.onclick === 'function') {
-    node.onclick()
-  }
-}
-
-export const animationEndEvent = (() => {
   const testEl = document.createElement('div')
   const transEndEventNames = {
     'WebkitAnimation': 'webkitAnimationEnd',
     'OAnimation': 'oAnimationEnd oanimationend',
-    'msAnimation': 'MSAnimationEnd',
     'animation': 'animationend'
   }
   for (const i in transEndEventNames) {
-    if (transEndEventNames.hasOwnProperty(i) &&
-      testEl.style[i] !== undefined) {
+    if (transEndEventNames.hasOwnProperty(i) && typeof testEl.style[i] !== 'undefined') {
       return transEndEventNames[i]
     }
   }
@@ -284,12 +323,11 @@ export const animationEndEvent = (() => {
 
 // Reset previous window keydown handler and focued element
 export const resetPrevState = () => {
-  window.onkeydown = states.previousWindowKeyDown
   if (states.previousActiveElement && states.previousActiveElement.focus) {
     let x = window.scrollX
     let y = window.scrollY
     states.previousActiveElement.focus()
-    if (x && y) { // IE has no scrollX/scrollY support
+    if (typeof x !== 'undefined' && typeof y !== 'undefined') { // IE doesn't have scrollX/scrollY support
       window.scrollTo(x, y)
     }
   }
@@ -298,7 +336,7 @@ export const resetPrevState = () => {
 // Measure width of scrollbar
 // https://github.com/twbs/bootstrap/blob/master/js/modal.js#L279-L286
 export const measureScrollbar = () => {
-  var supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints
+  const supportsTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints
   if (supportsTouch) {
     return 0
   }
@@ -312,16 +350,25 @@ export const measureScrollbar = () => {
   return scrollbarWidth
 }
 
-// JavaScript Debounce Function
-// Simplivied version of https://davidwalsh.name/javascript-debounce-function
-export const debounce = (func, wait) => {
-  let timeout
-  return () => {
-    const later = () => {
-      timeout = null
-      func()
-    }
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
+/**
+ * Inject a string of CSS into the page header
+ *
+ * @param {String} css
+ */
+export const injectCSS = (css = '') => {
+  // Prevent run in Node env
+  if (isNodeEnv()) {
+    return false
+  }
+
+  let head = document.head || document.getElementsByTagName('head')[0]
+  let style = document.createElement('style')
+  style.type = 'text/css'
+  head.appendChild(style)
+
+  if (style.styleSheet) {
+    style.styleSheet.cssText = css
+  } else {
+    style.appendChild(document.createTextNode(css))
   }
 }

@@ -47,7 +47,7 @@ $activeButtonCont = "";
                         <div class="w3-padding-top"></div>
                         <i class='text-muted w3-text-pink'>NOTE : Please upload your proof of down payment to confirm your order.</i>
                         <br>
-                        <i class='text-muted w3-text-indigo'><b>Please ensure 30% or more down payment will be paid before 7 days.</b></i>
+                        <i class='text-muted w3-text-indigo'><b>Please ensure 30% or more down payment.</b></i>
                         <?php 
                         echo "<table class='table table-condensed table-striped'>";
                             echo "<thead class='w3-black thead'>";

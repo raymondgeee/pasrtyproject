@@ -66,6 +66,35 @@ $dateNow = date("Y-m-d");
                                 $fullName = strtoupper($firstName." ".$surName);
                             }
 
+                            $date = new DateTime($deliveryDate);
+
+                            $date->modify('+3 day');
+                            $delDate = $date->format('Y-m-d');
+
+                            if($dateNow >= $delDate)
+                            {
+                                $sql = "UPDATE productorders SET orderStatus = 6 WHERE batchNumber = '".$batchNumber."'";
+                                $queryUpdate = $db->query($sql);
+
+                                $sql = "INSERT INTO `usernotification`(
+                                                                            `userId`, 
+                                                                            `notificationDetails`, 
+                                                                            `notificationKey`,
+                                                                            `notificationRemarks`,
+                                                                            `notificationType`,
+                                                                            `notificationDate`
+                                                                        ) 
+                                                                    VALUES ( 
+                                                                            ".$userId.",
+                                                                            'You order has been cancelled.',
+                                                                            '".$batchNumber."',
+                                                                            'Please be remind that your down payment is not refundable.',
+                                                                            '1',
+                                                                            now()
+                                                                        )";
+                                $queryInsert = $db->query($sql);
+                            }
+
                             if($deliveryDate <= $dateNow)
                             {
                                 $tdColor = "";

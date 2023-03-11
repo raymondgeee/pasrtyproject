@@ -61,6 +61,7 @@ if($queryReviewOrders AND $queryReviewOrders->num_rows > 0)
         if($orderStatus == 3) $orderStatusName = "<b>Approved</b>";
         if($orderStatus == 4) $orderStatusName = "<b>Denied</b>";
         if($orderStatus == 5) $orderStatusName = "<b>Finished</b>";
+        if($orderStatus == 6) $orderStatusName = "<b>Cancelled</b>";
 
         $nestedData = Array ();
         $nestedData[] = ++$x;

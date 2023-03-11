@@ -1,7 +1,7 @@
 <?php
 $notificationCount = 0;
 $badge = "";
-$sql = "SELECT * FROM productverification WHERE verificationStatus = 0 AND readStatus = 0 AND paymentImage != ''";
+$sql = "SELECT * FROM productverification WHERE verificationStatus = 0 AND paymentImage != ''";
 $queryCount = $db->query($sql);
 $notificationCount = $queryCount->num_rows; 
 
@@ -93,7 +93,7 @@ if($activeButtonCust == "true") $activeColorCust = "w3-dark-grey";
             </button><?php echo $badge; ?>
             <div class="w3-dropdown-content w3-bar-block w3-border">
                 <a href="#" class="w3-bar-item w3-button viewNotification"><b>(<?php echo $notificationCount; ?>)&emsp;Review Orders</b></a>
-                <a href="#" class="w3-bar-item w3-button deliveredItems"><b>(<?php echo $countDelivered; ?>)&emsp;Delivered Items</b></a>
+                <a href="#" class="w3-bar-item w3-button deliveredItems"><b>(<?php echo $countDelivered; ?>)&emsp;For Pick-Up Items</b></a>
             </div>
         </div>
         <a href="customizationSettings.php"><button class='w3-btn w3-round <?php echo $activeColorCust; ?> w3-tiny'><i class='fa fa-cogs'></i>&emsp;<b>CUSTOMIZATION SETTINGS</b></button></a>

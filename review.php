@@ -192,7 +192,7 @@ $activeButtonCust = "";
                                             echo "</thead>";
                                             echo "<tbody>";
                                             $x = $totalDelFee = $totalPriceData = 0;
-                                            $sql = "SELECT * FROM productorders WHERE batchNumber = '".$batchNumber."'";
+                                            echo $sql = "SELECT * FROM productorders WHERE batchNumber = '".$batchNumber."'";
                                             $queryReviewOrders = $db->query($sql);
                                             if($queryReviewOrders AND $queryReviewOrders->num_rows > 0)
                                             {

@@ -16,10 +16,11 @@ include('Modules/mysqliConnection.php');
                			echo "<th class='w3-center'>VERIFICATION ID</th>";
                			echo "<th class='w3-center'>BATCH NUMBER</th>";
                			echo "<th class='w3-center'>READ STATUS</th>";
+               			echo "<th class='w3-center'>STATUS</th>";
                			echo "<th class='w3-center'>DETAILS</th>";
                		echo "</thead>";
                		echo "<tbody>";
-	               	$sql = "SELECT * FROM productverification WHERE verificationStatus = 0 AND paymentImage != '' AND readStatus = 0";
+	               	$sql = "SELECT * FROM productverification WHERE verificationStatus = 0 AND paymentImage != ''";
 					$queryVerify = $db->query($sql);
 					if($queryVerify AND $queryVerify->num_rows > 0)
 					{
@@ -41,12 +42,14 @@ include('Modules/mysqliConnection.php');
 								echo "<td style='vertical-align:middle;' class='w3-center'>".$verificationId."</td>";
 								echo "<td style='vertical-align:middle;' class='w3-center'>".$batchNumber."</td>";
 								echo "<td style='vertical-align:middle;' class='w3-center'>".$read."</td>";
+								echo "<td style='vertical-align:middle;' class='w3-center'>".$verificationName."</td>";
 								echo "<td style='vertical-align:middle;' class='w3-center'><a href='review.php?batchNumber=".$batchNumber."&read=1'><button class='w3-black w3-btn w3-tiny w3-round'>REVIEW</button></a></td>";
 							echo "</tr>";
 						}
 					}
 					echo "</tbody>";
 					echo "<tfoot class='w3-black'>";
+                        echo "<th></th>";
                         echo "<th></th>";
                         echo "<th></th>";
                         echo "<th></th>";
